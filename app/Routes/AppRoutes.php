@@ -81,4 +81,14 @@ $routes->group('v1', function ($routes) {
         $routes->post('submit-proof', 'CandidaturaController::submit_proof');
         $routes->post('validate-payment', 'CandidaturaController::validate_payment');
     });
+
+
+    $routes->group('exames-aptidao', ['filter' => 'auth'], function ($routes) {
+        $routes->post('list',                 'ExameAptidaoController::listar');
+        $routes->post('show',                 'ExameAptidaoController::show');
+        $routes->post('create',               'ExameAptidaoController::create');
+        $routes->post('define-date',          'ExameAptidaoController::definir_data');
+        $routes->post('register-score',       'ExameAptidaoController::registar_notas');
+       
+    });
 });
