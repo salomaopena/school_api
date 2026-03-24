@@ -1,0 +1,84 @@
+<?php
+
+namespace App\Routes;
+
+use Config\Services;
+
+
+$routes = Services::routes();
+
+$routes->set404Override('\App\Controllers\Errors::notFound');
+
+
+$routes->group('v1', function ($routes) {
+
+    // Show api status
+    $routes->get('status', 'Main::status');
+
+
+    //Auth group routes
+    $routes->group('auth', static function ($routes) {
+
+        $routes->post('login', 'AuthController::login');
+        $routes->post('logout', 'AuthController::logout', ['filter' => 'auth']);
+        $routes->post('forgot-password', 'AuthController::forgot_password');
+        $routes->post('reset-password', 'AuthController::reset_password');
+        $routes->post('refresh-token', 'AuthController::refresh_token');
+        $routes->post('change-password', 'AuthController::change_password', ['filter' => 'auth']);
+    });
+
+    // user management
+    $routes->group('users', static function ($routes) {
+
+        $routes->post('create', 'UserManagement::create', [
+            'filter' => 'auth:usuarios.criar'
+        ]);
+
+        $routes->post('update', 'UserManagement::update', [
+            'filter' => 'auth:usuarios.atualizar'
+        ]);
+
+        $routes->post('delete', 'UserManagement::delete', [
+            'filter' => 'auth:usuarios.excluir'
+        ]);
+
+        $routes->post('list', 'UserManagement::list', [
+            'filter' => 'auth:usuarios.ler'
+        ]);
+
+        $routes->post('deactivate', 'UserManagement::deactivate', [
+            'filter' => 'auth:usuarios.desativar'
+        ]);
+
+
+        $routes->post('activate', 'UserManagement::activate', [
+            'filter' => 'auth:usuarios.ativar'
+        ]);
+
+
+        $routes->post('show', 'UserManagement::show', [
+            'filter' => 'auth:usuarios.ver'
+        ]);
+    });
+
+
+
+    // candidaturas
+    $routes->group('candidaturas', ['filter' => 'auth'], function ($routes) {
+        $routes->post('list',              'CandidaturaController::list');
+        $routes->post('show',            'CandidaturaController::show');
+        $routes->post('create',         'CandidaturaController::create');
+        $routes->post(
+            'status',
+            'CandidaturaController::update_status',
+            ['filter' => 'auth:candidaturas.validar']
+        );
+        $routes->post(
+            'delete',
+            'CandidaturaController::delete',
+            ['filter' => 'auth:candidaturas.excluir']
+        );
+        $routes->post('submit-proof', 'CandidaturaController::submit_proof');
+        $routes->post('validate-payment', 'CandidaturaController::validate_payment');
+    });
+});
