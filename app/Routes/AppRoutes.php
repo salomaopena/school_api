@@ -84,11 +84,30 @@ $routes->group('v1', function ($routes) {
 
 
     $routes->group('exames-aptidao', ['filter' => 'auth'], function ($routes) {
-        $routes->post('list',                 'ExameAptidaoController::listar');
-        $routes->post('show',                 'ExameAptidaoController::show');
-        $routes->post('create',               'ExameAptidaoController::create');
-        $routes->post('define-date',          'ExameAptidaoController::definir_data');
-        $routes->post('register-score',       'ExameAptidaoController::registar_notas');
-       
+        $routes->post(
+            'list',
+            'ExameAptidaoController::listar',
+            ['filter' => 'auth:exames.ler']
+        );
+        $routes->post(
+            'show',
+            'ExameAptidaoController::show',
+            ['filter' => 'auth:exames.ver']
+        );
+        $routes->post(
+            'create',
+            'ExameAptidaoController::create',
+            ['filter' => 'auth:exames.criar']
+        );
+        $routes->post(
+            'define-date',
+            'ExameAptidaoController::definir_data',
+            ['filter' => 'auth:exames.data']
+        );
+        $routes->post(
+            'register-score',
+            'ExameAptidaoController::registar_notas',
+            ['filter' => 'auth:exames.notas']
+        );
     });
 });

@@ -61,18 +61,22 @@ class ExameAptidaoController extends BaseController
             // Transfere dados da candidatura para o exame
             $array_data = [
                 'id_candidato'      => $candidatura->id_candidato,
+                'id_candidatura'    => $candidatura->id_candidatura,
                 'id_turma_origem'   => $candidatura->id_turma_origem,
+                'id_turma'          => $candidatura->id_turma,
                 'id_instituicao'    => $candidatura->id_instituicao,
                 'id_ano_letivo'     => $candidatura->id_ano_letivo,
                 'id_ano_curricular' => $candidatura->id_ano_curricular,
                 'id_periodo_letivo' => $candidatura->id_periodo_letivo,
                 'id_curso'          => $candidatura->id_curso,
+                'lingua_opcao'      => $candidatura->lingua_opcao,
                 'inscricao_data'    => date('Y-m-d'),
                 'data_prova'        => null,
-                'nota_portugues'    => 0,
-                'nota_matematica'   => 0,
+                'nota_portugues'    => $candidatura->nota_portugues,
+                'nota_matematica'   => $candidatura->nota_matematica,
+                'classificacao_final' => $candidatura->classificacao_final,
                 'situacao_exame'    => 'Inscrito',
-                'aprovado'          => 0,
+                'aprovado'          => $candidatura->aprovado,
             ];
 
             // Esta linha transforma qualquer string vazia em NULL real
@@ -225,7 +229,10 @@ class ExameAptidaoController extends BaseController
             $builder = $this->exame_aptidao->builder();
 
             $builder->where('exames_aptidao.deleted_at', null)
-                ->where('exames_aptidao.id_instituicao', $data['id_instituicao']);;
+                ->where(
+                    'exames_aptidao.id_instituicao',
+                    $data['id_instituicao']
+                );
 
             // ─── Filtros ───────────────────────────────────────────────────────
             if (!empty($data['id_ano_letivo'])) {
@@ -246,11 +253,27 @@ class ExameAptidaoController extends BaseController
                 $builder->where('exames_aptidao.data_prova', $data['data_prova']);
             }
 
+            if (!empty($data['id_turma'])) {
+                $builder->where('exames_aptidao.id_turma', $data['id_turma']);
+            }
+
             $total  = $builder->countAllResults(false);
             $exames = $builder
-                ->select('
+                ->select("
                               exames_aptidao.id_exame_apetidao,
                               exames_aptidao.id_candidato,
+                              ct.numero_candidatura,
+                              
+                              CONCAT(u.nome_usuario,' ', u.sobrenome_usuario) AS nome_candidato,
+                              u.data_nascimento,
+                              u.telefone_fixo,
+                              u.email,
+
+                              s.sexo_sigla,
+
+                              t.id_turma,
+                              t.nome_turma,
+                              exames_aptidao.lingua_opcao,
                               exames_aptidao.inscricao_data,
                               exames_aptidao.data_prova,
                               exames_aptidao.nota_portugues,
@@ -258,10 +281,19 @@ class ExameAptidaoController extends BaseController
                               exames_aptidao.classificacao_final,
                               exames_aptidao.situacao_exame,
                               exames_aptidao.aprovado,
+                              
                               exames_aptidao.id_curso,
+                              CONCAT(c.nome_curso, '(', c.codigo_curso,')') as nome_curso,
+
                               exames_aptidao.id_ano_letivo,
-                              exames_aptidao.id_instituicao
-                          ')
+                              al.ano_letivo
+                          ")
+                ->join('usuario u', '(u.id_usuario = exames_aptidao.id_candidato)', 'LEFT')
+                ->join('sexo s', '(u.id_sexo = s.id_sexo)', 'LEFT')
+                ->join('turma t', 't.id_turma = exames_aptidao.id_turma')
+                ->join('curso c', 'c.id_curso = exames_aptidao.id_curso')
+                ->join('ano_letivo al', 'al.id_ano_letivo = exames_aptidao.id_ano_letivo')
+                ->join('candidatura ct', 'exames_aptidao.id_candidatura = ct.id_candidatura')
                 ->orderBy('exames_aptidao.classificacao_final', 'DESC')
                 ->limit($per_page, $offset)
                 ->get()
@@ -292,8 +324,46 @@ class ExameAptidaoController extends BaseController
         try {
 
             $exame = $this->exame_aptidao
-                ->where('id_exame_apetidao', $data['id_exame_apetidao'])
-                ->where('deleted_at', null)
+                ->select("
+                              exames_aptidao.id_exame_apetidao,
+                              exames_aptidao.id_candidato,
+
+                              ct.numero_candidatura,
+                              
+                              CONCAT(u.nome_usuario,' ', u.sobrenome_usuario) AS nome_candidato,
+                              u.data_nascimento,
+                              u.telefone_fixo,
+                              u.email,
+
+                              s.sexo_sigla,
+
+                              t.id_turma,
+                              t.nome_turma,
+
+                              exames_aptidao.lingua_opcao,
+                              exames_aptidao.inscricao_data,
+                              exames_aptidao.data_prova,
+                              exames_aptidao.nota_portugues,
+                              exames_aptidao.nota_matematica,
+                              exames_aptidao.classificacao_final,
+                              exames_aptidao.situacao_exame,
+                              exames_aptidao.aprovado,
+                              
+                              exames_aptidao.id_curso,
+                              CONCAT(c.nome_curso, '(', c.codigo_curso,')') as nome_curso,
+
+                              exames_aptidao.id_ano_letivo,
+                              al.ano_letivo
+                          ")
+                ->join('usuario u', '(u.id_usuario = exames_aptidao.id_candidato)', 'LEFT')
+                ->join('sexo s', '(u.id_sexo = s.id_sexo)', 'LEFT')
+                ->join('turma t', 't.id_turma = exames_aptidao.id_turma')
+                ->join('curso c', 'c.id_curso = exames_aptidao.id_curso')
+                ->join('ano_letivo al', 'al.id_ano_letivo = exames_aptidao.id_ano_letivo')
+                ->join('candidatura ct', 'exames_aptidao.id_candidatura = ct.id_candidatura')
+                ->where('exames_aptidao.id_exame_apetidao', $data['id_exame_apetidao'])
+                ->where('exames_aptidao.id_instituicao', $data['id_instituicao'])
+                ->where('exames_aptidao.deleted_at', null)
                 ->first();
 
             if (!$exame) {
