@@ -513,7 +513,7 @@ class CandidaturaController extends BaseController
             );
             
 
-            $nome_usuario = $email_info['nome_usuario'] . ' ' . $email_info['sobrenome_usuario'];
+            $nome_usuario = $email_info['nome_candidato'] ;
 
             $email_service = new \App\Services\EmailService();
             // TODO: descomentar as linas a baixo só após a configuração dos serviços de emails em: EmailService
