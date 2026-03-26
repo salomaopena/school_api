@@ -83,6 +83,7 @@ $routes->group('v1', function ($routes) {
     });
 
 
+    // Exames de aptidão
     $routes->group('exames-aptidao', ['filter' => 'auth'], function ($routes) {
         $routes->post(
             'list',
@@ -109,5 +110,14 @@ $routes->group('v1', function ($routes) {
             'ExameAptidaoController::registar_notas',
             ['filter' => 'auth:exames.notas']
         );
+    });
+
+
+    // Alunos
+    $routes->group('alunos', ['filter' => 'auth'], function ($routes) {
+        $routes->post('list',               'AlunoController::list');
+        $routes->post('show',           'AlunoController::show');
+        $routes->post('seriar',   'AlunoController::seriar');
+        $routes->post('seriar-massa',    'AlunoController::seriar_massa');
     });
 });

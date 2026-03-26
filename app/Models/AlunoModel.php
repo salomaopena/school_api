@@ -58,9 +58,9 @@ class AlunoModel extends Model
         return 'AL-' . $ano . str_pad($proximo, 4, '0', STR_PAD_LEFT);
     }
 
-    public function candidato_ja_e_aluno(int $id_candidato, int $id_curso, int $id_instituicao): bool
+    public function candidato_ja_e_aluno(int $id_aluno, int $id_curso, int $id_instituicao): bool
     {
-        return $this->where('id_aluno', $id_candidato)
+        return $this->where('id_aluno', $id_aluno)
             ->where('id_curso', $id_curso)
             ->where('id_instituicao', $id_instituicao)
             ->where('deleted_at', null)
