@@ -240,8 +240,8 @@ class PlanoCurricularController extends BaseController
                     401
                 );
             }
-            
-            
+
+
             $this->plano_curricular->update($plano->id_plano_curricular, [
                 'id_disciplina'       => $data['id_disciplina'],
                 'id_semestre_lectivo' => $data['id_semestre_lectivo'],
@@ -254,6 +254,39 @@ class PlanoCurricularController extends BaseController
             return $this->api_response->set_error($e->getMessage(), 401);
         }
     }
+
+    // ─── Remover disciplina do plano curricular ────────────────────────────────
+    public function delete()
+    {
+        $this->api_response->validade_request('POST');
+        $data = $this->request->getJSON(true) ?? $this->request->getPost();
+
+        try {
+
+            $plano = $this->plano_curricular
+                ->where('id_plano_curricular', $data['id_plano_curricular'])
+                ->where('id_instituicao', $data['id_instituicao'])
+                ->where('deleted_at', null)
+                ->first();
+
+            if (!$plano) {
+                return $this->api_response->set_error('Disciplina não encontrada no plano curricular!', 404);
+            }
+
+            $this->plano_curricular->update(
+                $plano->id_plano_curricular,
+                [
+                    'updated_at' => date('Y-m-d H:i:s'),
+                    'deleted_at' => date('Y-m-d H:i:s'),
+                ]
+            );
+
+            return $this->api_response->set_success([], 'Disciplina removida do plano curricular com sucesso!');
+        } catch (\Exception $e) {
+            return $this->api_response->set_error($e->getMessage(), 401);
+        }
+    }
+
 
     // validate forms
     private function _validate_create_form(): array

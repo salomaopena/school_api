@@ -139,6 +139,6 @@ $routes->group('v1', function ($routes) {
         $routes->post('create',        'PlanoCurricularController::create');
         $routes->post('search',        'PlanoCurricularController::consultar');
         $routes->post('update',         'PlanoCurricularController::update');
-        $routes->delete('delete',      'PlanoCurricularController::delete');
+        $routes->post('delete',      'PlanoCurricularController::delete');
     });
 });
