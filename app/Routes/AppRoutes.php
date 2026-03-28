@@ -123,14 +123,22 @@ $routes->group('v1', function ($routes) {
 
 
     $routes->group('matricula', ['filter' => 'auth'], function ($routes) {
-        $routes->post('list',           'MatriculaController::list');
-        $routes->post('show',            'MatriculaController::show');
-        $routes->post('create',         'MatriculaController::create');
-        $routes->post('update',         'MatriculaController::update');
-        $routes->post('validate',       'MatriculaController::validar');
-        $routes->post('cancel',         'MatriculaController::cancelar');
-        $routes->post('reconfirm',      'MatriculaController::reconfirmar');
+        $routes->post('list',           'MatriculaController::list', ['filter' => 'auth:matricula.ler']);
+        $routes->post('show',            'MatriculaController::show', ['filter' => 'auth:matricula.ver']);
+        $routes->post('create',         'MatriculaController::create', ['filter' => 'auth:matricula.criar']);
+        $routes->post('update',         'MatriculaController::update', ['filter' => 'auth:matricula.atualizar']);
+        $routes->post('validate',       'MatriculaController::validar', ['filter' => 'auth:matricula.validar']);
+        $routes->post('cancel',         'MatriculaController::cancelar', ['filter' => 'auth:matricula.anular']);
+        $routes->post('reconfirm',      'MatriculaController::reconfirmar', ['filter' => 'auth:matricula.criar']);
         $routes->post('proof',          'MatriculaController::submeter_comprovativo_matricula');
-        $routes->post('validate-payment',     'MatriculaController::validar_pagamento_matricula');
+        $routes->post('validate-payment',     'MatriculaController::validar_pagamento_matricula', ['filter' => 'auth:matricula.validar']);
+    });
+
+
+    $routes->group('plano/curricular', ['filter' => 'auth'], function ($routes) {
+        $routes->post('create',        'PlanoCurricularController::create');
+        $routes->post('search',        'PlanoCurricularController::consultar');
+        $routes->post('update',         'PlanoCurricularController::update');
+        $routes->delete('delete',      'PlanoCurricularController::delete');
     });
 });
