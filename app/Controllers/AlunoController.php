@@ -95,17 +95,17 @@ class AlunoController extends BaseController
 
             $numero_aluno = $this->aluno->gerar_numero_aluno($exame['id_instituicao']);
 
-            $id = $this->aluno->insert([
+            $this->aluno->insert([
                 'id_aluno'       => $exame['id_candidato'],
                 'id_profissao'   => null,
                 'id_instituicao' => $exame['id_instituicao'],
                 'numero_aluno'   => $numero_aluno,
                 'id_curso'       => $exame['id_curso'],
-            ], true);
+            ]);
 
-            if ($id > 0) {
+            if ($this->aluno->db->affectedRows() > 0) {
                 return $this->api_response->set_success([
-                    'id_aluno'     => $id,
+                    'id_aluno'     => $exame['id_candidato'],
                     'numero_aluno' => $numero_aluno,
                 ], 'Candidato seriado como aluno com sucesso!');
             }
@@ -216,7 +216,7 @@ class AlunoController extends BaseController
                     'numero_aluno'   => $numero_aluno,
                     'id_curso'       => $aprovado['id_curso'],
                     'ativo'          => 1,
-                ], true);
+                ]);
 
                 if ($this->aluno->db->affectedRows() > 0) {
                     $seriados[] = [

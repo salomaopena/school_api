@@ -115,9 +115,22 @@ $routes->group('v1', function ($routes) {
 
     // Alunos
     $routes->group('alunos', ['filter' => 'auth'], function ($routes) {
-        $routes->post('list',           'AlunoController::list', ['filter' => 'alunos.ler']);
-        $routes->post('show',           'AlunoController::show', ['filter' => 'alunos.ver']);
-        $routes->post('seriar',         'AlunoController::seriar', ['filter' => 'alunos.seriar']);
-        $routes->post('seriar-massa',   'AlunoController::seriar_massa', ['filter' => 'alunos.seriar']);
+        $routes->post('list',           'AlunoController::list', ['filter' => 'auth:alunos.ler']);
+        $routes->post('show',           'AlunoController::show', ['filter' => 'auth:alunos.ver']);
+        $routes->post('seriar',         'AlunoController::seriar', ['filter' => 'auth:alunos.seriar']);
+        $routes->post('seriar-massa',   'AlunoController::seriar_massa', ['filter' => 'auth:alunos.seriar']);
+    });
+
+
+    $routes->group('matricula', ['filter' => 'auth'], function ($routes) {
+        $routes->post('list',           'MatriculaController::list');
+        $routes->post('show',            'MatriculaController::show');
+        $routes->post('create',         'MatriculaController::create');
+        $routes->post('update',         'MatriculaController::update');
+        $routes->post('validate',       'MatriculaController::validar');
+        $routes->post('cancel',         'MatriculaController::cancelar');
+        $routes->post('reconfirm',      'MatriculaController::reconfirmar');
+        $routes->post('proof',          'MatriculaController::submeter_comprovativo_matricula');
+        $routes->post('validate-payment',     'MatriculaController::validar_pagamento_matricula');
     });
 });

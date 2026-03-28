@@ -508,7 +508,7 @@ class CandidaturaController extends BaseController
 
 
             $email_info = $this->candidatura->show_candidatura_info(
-                $candidatura->id_candidatura,
+                $candidatura->id_instituicao,
                 $candidatura->id_candidatura
             );
             
