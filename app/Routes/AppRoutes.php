@@ -156,4 +156,7 @@ $routes->group('v1', function ($routes) {
         $routes->post('list/disciplina/docente',        'DocenciaController::docentes_por_disciplina');
         $routes->post('remover/disciplina/docente',     'DocenciaController::remover_docente');
     });
+
+
+    
 });
