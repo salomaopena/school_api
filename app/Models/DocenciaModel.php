@@ -10,7 +10,7 @@ class DocenciaModel extends Model
     protected $primaryKey       = 'id_docencia';
     protected $useAutoIncrement = true;
     protected $returnType       = 'object';
-    protected $useSoftDeletes   = false;
+    protected $useSoftDeletes   = true;
     protected $protectFields    = false;
     protected $allowedFields    = [];
 
@@ -21,7 +21,7 @@ class DocenciaModel extends Model
     protected array $castHandlers = [];
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
@@ -43,4 +43,16 @@ class DocenciaModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+
+    public function professor_ja_atribuido(
+        int $id_professor,
+        int $id_turma_disciplina,
+        int $id_instituicao
+    ): bool {
+        return $this->where('id_professor', $id_professor)
+            ->where('id_turma_disciplina', $id_turma_disciplina)
+            ->where('id_instituicao', $id_instituicao)
+            ->countAllResults() > 0;
+    }
 }

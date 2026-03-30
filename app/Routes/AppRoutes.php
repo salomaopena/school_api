@@ -135,10 +135,25 @@ $routes->group('v1', function ($routes) {
     });
 
 
+    // Plano Curricular
     $routes->group('plano/curricular', ['filter' => 'auth'], function ($routes) {
         $routes->post('create',        'PlanoCurricularController::create');
         $routes->post('search',        'PlanoCurricularController::consultar');
         $routes->post('update',         'PlanoCurricularController::update');
         $routes->post('delete',      'PlanoCurricularController::delete');
+    });
+
+
+    // Docência
+    $routes->group('docencia', ['filter' => 'auth'], function ($routes) {
+        // Turma/Disciplina
+        $routes->post('atribuir/disciplina/turma',      'DocenciaController::atribuir_disciplinas_turma');
+        $routes->post('list/disciplina/turma',          'DocenciaController::disciplinas_por_turma');
+        $routes->post('remover/disciplina/turma',       'DocenciaController::remover_disciplina_turma');
+
+        // Docente/Disciplina
+        $routes->post('atribuir/disciplina/docente',    'DocenciaController::atribuir_docente');
+        $routes->post('list/disciplina/docente',        'DocenciaController::docentes_por_disciplina');
+        $routes->post('remover/disciplina/docente',     'DocenciaController::remover_docente');
     });
 });

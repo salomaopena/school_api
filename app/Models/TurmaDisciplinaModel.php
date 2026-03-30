@@ -47,11 +47,13 @@ class TurmaDisciplinaModel extends Model
     public function disciplina_ja_atribuida(
         int $id_turma,
         int $id_plano_curricular,
-        int $id_ano_letivo
+        int $id_ano_letivo,
+        int $id_instituicao
     ): bool {
         return $this->where('id_turma', $id_turma)
                     ->where('id_plano_curricular', $id_plano_curricular)
                     ->where('id_ano_letivo', $id_ano_letivo)
+                    ->where('id_instituicao', $id_instituicao)
                     ->countAllResults() > 0;
     }
 }
