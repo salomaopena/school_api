@@ -158,5 +158,14 @@ $routes->group('v1', function ($routes) {
     });
 
 
-    
+    $routes->group('professor', ['filter' => 'auth'], function($routes) {
+        $routes->post('list',           'ProfessorController::list');
+        $routes->post('show',           'ProfessorController::show');
+        $routes->post('create',         'ProfessorController::create');
+        $routes->post('update',         'ProfessorController::update');
+        $routes->post('disciplinas',    'ProfessorController::associar_disciplinas');
+        $routes->post('carga-horaria',  'ProfessorController::carga_horaria');
+        $routes->post('ativar',         'ProfessorController::activate');
+        $routes->post('desativar',      'ProfessorController::deactivate');
+    });
 });
