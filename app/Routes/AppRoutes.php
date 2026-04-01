@@ -158,7 +158,7 @@ $routes->group('v1', function ($routes) {
     });
 
 
-    $routes->group('professor', ['filter' => 'auth'], function($routes) {
+    $routes->group('professor', ['filter' => 'auth'], function ($routes) {
         $routes->post('list',           'ProfessorController::list');
         $routes->post('show',           'ProfessorController::show');
         $routes->post('create',         'ProfessorController::create');
@@ -167,5 +167,14 @@ $routes->group('v1', function ($routes) {
         $routes->post('carga-horaria',  'ProfessorController::carga_horaria');
         $routes->post('ativar',         'ProfessorController::activate');
         $routes->post('desativar',      'ProfessorController::deactivate');
+    });
+
+
+    $routes->group('pagamentos', ['filter' => 'auth'], function ($routes) {
+        $routes->post('checkout',       'PagamentoController::checkout');
+        $routes->post('validar',        'PagamentoController::validar');
+        $routes->post('show',           'PagamentoController::show');
+        $routes->post('historico',      'PagamentoController::historico');
+        $routes->post('comprovante',    'PagamentoController::comprovante');
     });
 });

@@ -4,10 +4,10 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PagamentoModel extends Model
+class PedidoModel extends Model
 {
-    protected $table            = 'pagamentos';
-    protected $primaryKey       = 'id_pagamento';
+    protected $table            = 'pedidos';
+    protected $primaryKey       = 'id_pedido';
     protected $useAutoIncrement = true;
     protected $returnType       = 'object';
     protected $useSoftDeletes   = true;
@@ -45,30 +45,8 @@ class PagamentoModel extends Model
     protected $afterDelete    = [];
 
 
-    public function itens_do_pedido(int $id_pedido, int $id_instituicao): array
+    public function buscar_por_uuid(string $uuid): array|null
     {
-        return $this->db->table('pagamentos p')
-            ->select('
-                p.id_pagamento,
-                p.id_pedido,
-                p.id_taxa,
-                p.valor_pago,
-                p.valor_multa,
-                p.desconto_pag,
-                p.total_pago,
-                p.nome_item,
-                t.id_mes,
-                m.nome_mes,
-                ip.tipo_pag,
-                ip.nome_pag
-            ')
-            ->join('taxas t',               't.id_taxa      = p.id_taxa',   'left')
-            ->join('itens_pagamento ip',    'ip.id_item_pag = t.id_item_pag', 'left')
-            ->join('mes m', 'm.id_mes = t.id_mes', 'LEFT')
-            ->where('p.id_pedido',  $id_pedido)
-            ->where('t.id_instituicao',     $id_instituicao)
-            ->where('p.deleted_at', null)
-            ->get()
-            ->getResultArray();
+        return $this->where('uuid_pedido', $uuid)->first();
     }
 }
