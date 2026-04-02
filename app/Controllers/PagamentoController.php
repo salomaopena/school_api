@@ -369,16 +369,47 @@ class PagamentoController extends BaseController
             $id_pedido = (int) $data['id_pedido'];
             $id_instituicao = (int) $data['id_instituicao'];
 
-            $pedido = $this->pedido
-                ->where('id_instituicao', $id_instituicao)
-                ->where('id_pedido', $id_pedido)
-                ->first();
+            $pedido = $this->pedido->builder('pedidos p')
+                ->select("
+                p.id_pedido,
+                p.uuid_pedido,
+                CONCAT(us.nome_usuario,' ',us.sobrenome_usuario) AS utente,
+                COALESCE(us.telefone_fixo,' ',us.telefone_movel) AS telefone,
+                us.numero_doc,
+                a.numero_aluno,
+                CONCAT(uf.nome_usuario,' ',uf.sobrenome_usuario) AS funcionario,
+                p.total_itens,
+                p.subtotal,
+                p.total_multa,
+                p.total_desconto,
+                p.total_geral,
+                p.situacao,
+                fp.descricao_forma_pag,
+                p.codigo_transacao,
+                p.data_pedido,
+                p.observacao,
+                c.nome_curso,
+                i.nome_instituicao,
+                p.created_at,
+                p.updated_at
+                ")
+                ->join('usuario us', 'p.id_usuario = us.id_usuario', 'LEFT')
+                ->join('funcionario fc', 'fc.id_funcionario = p.id_funcionario', 'LEFT')
+                ->join('usuario uf', 'uf.id_usuario = p.id_funcionario', 'LEFT')
+                ->join('forma_pagamento fp', 'fp.id_forma_pag = p.id_forma_pag', 'LEFT')
+                ->join('aluno a', 'a.id_aluno = us.id_usuario', 'LEFT')
+                ->join('curso c', 'a.id_curso = c.id_curso', 'LEFT')
+                ->join('instituicao i', 'i.id_instituicao = p.id_instituicao', 'LEFT')
+                ->where('p.id_instituicao', $id_instituicao)
+                ->where('p.id_pedido', $id_pedido)
+                ->get()
+                ->getRowObject();
 
             if (!$pedido) {
                 return $this->api_response->set_error('Pedido não encontrado!', 404);
             }
 
-            if ($pedido['situacao'] !== 'Pago') {
+            if ($pedido->situacao !== 'Pago') {
                 return $this->api_response->set_error(
                     'Comprovante disponível apenas para pedidos pagos!',
                     401
@@ -389,39 +420,45 @@ class PagamentoController extends BaseController
 
             $comprovante = [
                 'cabecalho' => [
-                    'titulo'           => 'Comprovante de Pagamento',
-                    'id_instituicao'   => $pedido['id_instituicao'],
-                    'data_emissao'     => date('Y-m-d H:i:s'),
-                    'numero_documento' => 'COMP-' . str_pad($id_pedido, 8, '0', STR_PAD_LEFT),
+                    'titulo'            => 'Comprovante de Pagamento',
+                    'instituicao'       => $pedido->nome_instituicao,
+                    'data_emissao'      => date('Y-m-d H:i:s'),
+                    'numero_documento'  => 'COMP-' . str_pad($id_pedido, 8, '0', STR_PAD_LEFT),
+                    'numero_aluno'      => $pedido->numero_aluno,
+                    'nome_curso'        => $pedido->nome_curso
                 ],
                 'pedido' => [
-                    'id_pedido'        => $pedido['id_pedido'],
-                    'uuid_pedido'      => $pedido['uuid_pedido'],
-                    'codigo_transacao' => $pedido['codigo_transacao'],
-                    'data_pedido'      => $pedido['data_pedido'],
-                    'situacao'         => $pedido['situacao'],
-                    'id_forma_pag'     => $pedido['id_forma_pag'],
-                    'observacao'       => $pedido['observacao'],
+                    'id_pedido'        => $pedido->id_pedido,
+                    'uuid_pedido'      => $pedido->uuid_pedido,
+                    'codigo_transacao' => $pedido->codigo_transacao,
+                    'data_pedido'      => $pedido->data_pedido,
+                    'situacao'         => $pedido->situacao,
+                    'forma_pagamento'  => $pedido->descricao_forma_pag,
+                    'observacao'       => $pedido->observacao,
                 ],
                 'itens' => array_map(fn($i) => [
                     'nome_item'   => $i['nome_item'],
                     'tipo_pag'    => $i['tipo_pag'],
+                    'nome_mes'    => $i['nome_mes'],
                     'valor_pago'  => $i['valor_pago'],
                     'valor_multa' => $i['valor_multa'],
                     'desconto'    => $i['desconto_pag'],
                     'total_item'  => $i['total_pago'],
                 ], $itens),
                 'totais' => [
-                    'total_itens'    => $pedido['total_itens'],
-                    'subtotal'       => $pedido['subtotal'],
-                    'total_multa'    => $pedido['total_multa'],
-                    'total_desconto' => $pedido['total_desconto'],
-                    'total_geral'    => $pedido['total_geral'],
+                    'total_itens'    => $pedido->total_itens,
+                    'subtotal'       => $pedido->subtotal,
+                    'total_multa'    => $pedido->total_multa,
+                    'total_desconto' => $pedido->total_desconto,
+                    'total_geral'    => $pedido->total_geral,
                 ],
                 'usuario' => [
-                    'id_usuario'     => $pedido['id_usuario'],
-                    'id_funcionario' => $pedido['id_funcionario'],
+                    'utente'     => $pedido->utente,
+                    'funcionario' => $pedido->funcionario,
                 ],
+                'rodape' => [
+                    'created_at' => $pedido->created_at
+                ]
             ];
 
             return $this->api_response->set_success(
